@@ -48,14 +48,14 @@ function _M.get_secretkey(accesskey)
 	if not accesskey then
 		return nil
 	end
-	if accesskey == 'scs0000000000000imgx' then
-		return 'scs0000000000000imgx'
+	if accesskey == 'scs0000000000000none' then
+		return 'scs0000000000000none'
 	end
 	local sk_info = ngx.shared.keychain:get(accesskey)
 	--sk_info = nil
 	if not sk_info then
 		local httpc = http.new()
-		local res, err = httpc:request_uri("http://i.core.in-ja.sinastorage.com:7011/core2/accesskey/get?accesskey=" .. accesskey)
+		local res, err = httpc:request_uri("http://a_private_ip/accesskey/get?accesskey=" .. accesskey)
 		--httpc:close()
 		if not res then
 			--ngx.say("failed to request: ", err)
@@ -173,7 +173,8 @@ function _M.parse_accesskey_ssig()
 	local kid = ngx.req.get_uri_args()["KID"]
 	local ssig = ngx.req.get_uri_args()["ssig"]
 	if (not auth_header) and (not kid) and (not ssig) then
-		return 'scs0000000000000imgx', ''
+		return 'scs0000000000000none', ''
+		-- return 'scs0000000000000imgx', ''
 	end
 	local accesskey
 	if kid then
@@ -241,6 +242,9 @@ function _M.auth_request()
 	ngx.var.scs_secretkey = secretkey
 	local auth = _M:new(accesskey, secretkey)
 	if accesskey == 'scs0000000000000imgx' and ssig == '' then
+		return path_info, auth
+	end
+	if accesskey == 'scs0000000000000none' and ssig == '' then
 		return path_info, auth
 	end
 	--[[
@@ -371,11 +375,15 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 		method = "GET"
 	end
 
-	headers["Date"] = ngx.http_time(ngx.time() + 86400)
-	local ssig = self:generate_authorization_string(method, bucket, key, headers, sub_resource)
-	headers["Authorization"] = "SINA " .. self.accesskey .. ":" .. ssig
-	headers["Host"] = "sinastorage.com"
-	headers["User-Agent"] = "imgx/0.9.0-dev"
+	if self.accesskey ~= 'scs0000000000000none' then
+		headers["Date"] = ngx.http_time(ngx.time() + 86400)
+		local ssig = self:generate_authorization_string(method, bucket, key, headers, sub_resource)
+		headers["Authorization"] = "SINA " .. self.accesskey .. ":" .. ssig
+		headers["Host"] = "sinastorage.com"
+		headers["User-Agent"] = "imgx/0.9.0-dev"
+	else
+		headers["Host"] = bucket
+	end
 	--[[
 	intra-gz.sinastorage.com
 	intra-tj.sinastorage.com
@@ -436,6 +444,7 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 	local idx = math.random(1, #ip_list)
 	]]
 
+	--[[ cloudmario
 	local idx_domain, domain, idx_ip, ip_addr, ip_list
 	for idx_domain, domain in ipairs(S3_DOMAIN_LIST) do
 		ip_list = util.resolver_query(domain)
@@ -448,6 +457,19 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 				return res, err, httpc
 			until true
 		end
+	end
+	]]
+
+	local idx_ip, ip_addr, ip_list
+	ip_list = util.resolver_query(bucket)
+	for idx_ip, ip_addr in ipairs(ip_list) do
+		repeat
+			local res, err, httpc = try_request(ip_addr)
+			if err ~= nil or res == nil then
+				break
+			end
+			return res, err, httpc
+		until true
 	end
 
 	return nil, 'GatewayTimeout', httpc
