@@ -1,4 +1,4 @@
-FROM cloudmario/imgx-base
+FROM daocloud.io/cloudmario/imgx-base
 MAINTAINER Cloud Mario <smcz@qq.com>
 
 ADD ./imgx /imgx
