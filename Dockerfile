@@ -24,4 +24,6 @@ EXPOSE 80
 
 RUN chmod +x /imgx/boot
 
-CMD ["/imgx/boot"]
+WORKDIR /imgx
+
+CMD ["./boot"]

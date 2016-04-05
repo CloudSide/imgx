@@ -9,4 +9,4 @@ mkdir -p /imgx/logs
 alidns=""
 echo resolver $alidns $(awk 'BEGIN{ORS=" "} /nameserver/{print $2}' /etc/resolv.conf | sed "s/ $/;/g") > /imgx/conf/resolvers.conf
 
-/usr/local/openresty/nginx/sbin/nginx -p /imgx -c conf/nginx.conf -g daemon off;
+/usr/local/openresty/nginx/sbin/nginx -p "/imgx" -c "conf/nginx.conf" -g "daemon off;"
