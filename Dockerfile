@@ -20,10 +20,6 @@ RUN groupadd imgx
 RUN useradd -g imgx imgx
 RUN chown imgx -R /imgx/cache
 
-# forward request and error logs to docker log collector
-RUN ln -sf /dev/stdout /imgx/logs/access.log \
-  && ln -sf /dev/stderr /imgx/logs/error.log
-
 EXPOSE 80
 
 RUN chmod +x /imgx/boot
