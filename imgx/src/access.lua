@@ -7,7 +7,7 @@ local http = require "http"
 local command = require "command"
 local luafs = require "libluafs"
 local fs = require "fs"
-local lock = require "resty.lock" 
+local lock = require "resty.lock"
 local conf = require "config"
 
 local path_info, au, err_code, err_msg = auth.auth_request()
@@ -54,7 +54,7 @@ local function download_file_atomic(bucket, key)
 		util.release_http_connect(httpc)
 		return false, 'InternalServerError'
 	end
-	
+
 	if res.status ~= 200 and res.status ~= 304 then
 		util.release_http_connect(httpc)
 		return false, res.headers["x-error-code"]
@@ -67,14 +67,14 @@ local function download_file_atomic(bucket, key)
 			util.release_http_connect(httpc)
 			return false, 'EntityTooLarge'
 		end
-		
+
 		if tonumber(file_size) <= 1 then
 			util.release_http_connect(httpc)
 			return false, 'EntityTooSmall'
 		end
 
 		content_type = res.headers["Content-Type"]
-		content_type = content_type:lower()		
+		content_type = content_type:lower()
 
 		if not conf.get_conf("allowed_file_mime_type")[content_type] then
 			util.release_http_connect(httpc)
@@ -92,7 +92,7 @@ local function download_file_atomic(bucket, key)
         return false, "InternalServerError"
     end
 
-	local fpath, sha1 = get_file_path(bucket, key, true)	
+	local fpath, sha1 = get_file_path(bucket, key, true)
 	local tmpath = get_tmpfile_path(fpath)
 
 	local fp, fp_err = io.open(tmpath, 'w+')
@@ -123,7 +123,7 @@ local function download_file_atomic(bucket, key)
 			--ngx.print(chunk)
         end
     until not chunk
-	
+
 	fp:close()
 	util.release_http_connect(httpc)
 	--[[
@@ -151,7 +151,7 @@ local function download_file_atomic(bucket, key)
 			if not m_ok then
 				mgk:destroy()
 				os.remove(tmpath)
-				return false, 'InternalServerError' 
+				return false, 'InternalServerError'
 			else
 				os.remove(tmpath)
 			end
@@ -176,7 +176,7 @@ local function download_file_atomic(bucket, key)
 	end
 	--]]
 
-	--[	
+	--[
 	local rename_ok, rename_err, rename_err_num = os.rename(tmpath, fpath)
 	if err ~= nil  then
 		ngx.log(ngx.ERR, string.format('rename %s to %s fail, err:%s', tmpath, fpath, rename_err))
@@ -198,7 +198,7 @@ local function try_file(bucket, key)
 		local elapsed, err = lock:lock(sha1)
 		--ngx.log(ngx.alert, "lock --------------------")
 		if not elapsed then
-			ngx.log(ngx.ERR, err) 
+			ngx.log(ngx.ERR, err)
 			stoerr.err_exit('InternalError')
 			return false
 		end
@@ -222,7 +222,7 @@ local function try_file(bucket, key)
 			return false
         end
 		if ok then
-			return true, fpath  
+			return true, fpath
 		else
 			if err == 'NoSuchKey' then
 				return false, nil, 'NoSuchKey'
@@ -279,10 +279,10 @@ local function scs_proxy()
 	--local ok, fpath, err = try_file(path_info["bucket"], path_info["cmd"] .. '/' .. path_info["key"])
 	--if (not ok) and err and err == 'NoSuchKey' then
 	local fpath, sha1 = get_file_path(path_info["bucket"], path_info["cmd"] .. '/' .. path_info["key"])
-	ngx.ctx.etag = '"' .. sha1 .. '"'	
+	ngx.ctx.etag = '"' .. sha1 .. '"'
 	local etag = ngx.req.get_headers()["If-None-Match"] or ngx.req.get_headers()["if-none-match"]
 
-	-- --	
+	-- --
 	if etag and etag == ngx.ctx.etag then
 		ngx.header["X-Imgx-HitInfo"] = 'TCP_HIT'
 		ngx.var.hitinfo = ngx.header["X-Imgx-HitInfo"]
@@ -307,7 +307,7 @@ local function scs_proxy()
 		end
 
 		local fn, en = util.get_filename(path)
-		ngx.header["Content-Type"] = conf.get_conf("allowed_file_type")[en] 
+		ngx.header["Content-Type"] = conf.get_conf("allowed_file_type")[en]
 		ngx.header["ETag"] = ngx.ctx.etag
 		ngx.exec(path .. '?bucket=' .. path_info["bucket"])
 	end

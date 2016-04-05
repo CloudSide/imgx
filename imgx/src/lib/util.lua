@@ -60,9 +60,9 @@ function _M.split(str, pat)
     return t
 end
 
-function _M.startswith( s, pref ) 
+function _M.startswith( s, pref )
     return string.sub( s, 1, string.len( pref ) ) == pref
-end 
+end
 
 function _M.parse_query_string( str, decode )
     local rst = {}
@@ -125,6 +125,8 @@ function _M.convert_hex_to_rgba_color(hex_color)
 end
 
 function _M.get_host_bucket(host)
+	return nil, false, false
+	--[[ cloudmario
 	if not host then
 		host = ngx.var.host
 	end
@@ -135,7 +137,7 @@ function _M.get_host_bucket(host)
 		super_hosts_regex[idx] = ngx.re.gsub(value, "\\.", "\\.")
 	end
 	local regex = "^((?<host_bucket>.+)\\.)?(" .. table.concat(super_hosts_regex, "|") .. ")$"
-	local m, err = ngx.re.match(host, regex)	
+	local m, err = ngx.re.match(host, regex)
 	if m and m["host_bucket"] then
 		return m["host_bucket"], true, false
 	elseif m and not m["host_bucket"] then
@@ -144,6 +146,7 @@ function _M.get_host_bucket(host)
 		return nil, false, false
 	end
 	return host, true, true
+	]]
 	-- return bucket, host_style, host_as_bucket
 end
 
@@ -205,7 +208,7 @@ function _M.get_http_response_body(response, chunksize, output)
 		return c
 	else
 		return table.concat(chunks)
-	end	
+	end
 end
 
 function _M.release_http_connect(httpc)
@@ -235,7 +238,7 @@ function _M.get_filename(path)
 	if #sub_names > 1 then
 		ext_name = sub_names[#sub_names]
 	end
-	return filename, ext_name:lower() 
+	return filename, ext_name:lower()
 end
 
 function _M.sha1_hex(str)
@@ -243,7 +246,7 @@ function _M.sha1_hex(str)
 end
 
 function _M.get_file_path(bucket, key, mkdir)
-	
+
 	local v = ngx.ctx.cmd_v and ngx.ctx.cmd_v or 0
 	local sha1 = _M.sha1_hex(bucket .. '/' .. key .. '/' .. v)
 	--ngx.log(ngx.ERR, bucket .. '/' .. key .. '/' .. v)
@@ -286,14 +289,14 @@ function _M.clean_tmp_pool()
 		return
 	end
 	-------------------------------------------
-	local run_clean = function()	
+	local run_clean = function()
 		local pool_path = ngx.var.scs_cache_path_prefix .. bt
 		local files, err_code = fs.read_dir(pool_path)
 		if err_code ~= nil then
 			--ngx.log(ngx.ERR, string.format('clean_tmp_pool: %s read_dir fail, err_code:%s', pool_path, err_code))
 			return false
 		end
-		
+
 		local filename, extname
 		local i, fn, fpath, info, err, expire_time
 		local fns = {}
@@ -319,7 +322,7 @@ function _M.clean_tmp_pool()
 					end
 				end
 			end
-		end	
+		end
 
 		local maxn = table.getn(exps)
 		local j, k
@@ -398,7 +401,7 @@ function _M.resolver_query(domain)
 		table.insert(ip_list, domain)
 		return ip_list
     end
-       
+
 	if answers.errcode then
 		--ngx.say("server returned error code: ", answers.errcode, ": ", answers.errstr)
 		table.insert(ip_list, domain)

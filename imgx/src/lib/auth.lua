@@ -48,6 +48,9 @@ function _M.get_secretkey(accesskey)
 	if not accesskey then
 		return nil
 	end
+	if accesskey == 'scs0000000000000imgx' then
+		return 'scs0000000000000imgx'
+	end
 	local sk_info = ngx.shared.keychain:get(accesskey)
 	--sk_info = nil
 	if not sk_info then

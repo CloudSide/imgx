@@ -3,7 +3,7 @@ local _Conf = {
 		"imgx.sinacloud.net",
 		"imgx.sinastorage.cn"
 	},
-	["allowed_file_size_max"] = 6291456,
+	["allowed_file_size_max"] = 10485760, -- 10M
 	["allowed_file_mime_type"] = {
 		["image/gif"] = "gif",
 		["image/jpeg"] = "jpeg jpg",
