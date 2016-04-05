@@ -3,6 +3,8 @@ MAINTAINER Cloud Mario <smcz@qq.com>
 
 ADD ./imgx /imgx
 
+RUN mkdir -p /imgx/cache
+
 # magick_type
 RUN cd /imgx/c/magicktype && \
   gcc -shared magicktype.c -o libmagicktype.so `freetype-config --cflags --libs` -fPIC && \
