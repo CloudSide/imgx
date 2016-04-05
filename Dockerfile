@@ -14,9 +14,9 @@ ENV TZ "Asia/Shanghai"
 ENV IMGX_VERSION 0.9.0
 
 # Users
-groupadd imgx
-useradd -g imgx imgx
-chown imgx -R /imgx/cache
+RUN groupadd imgx
+RUN useradd -g imgx imgx
+RUN chown imgx -R /imgx/cache
 
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /imgx/logs/access.log \
