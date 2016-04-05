@@ -60,12 +60,12 @@ function _M.get_secretkey(accesskey)
 		end
 		if res.status == ngx.HTTP_OK then
 			local info = cjson.decode(res.body)
-			if	info 
-				and type(info) == "table" 
-				and info[1] 
-				and type(info[1]) == "table" 
-				and info[1]["secretkey"] 
-				and info[1]["username"] 
+			if	info
+				and type(info) == "table"
+				and info[1]
+				and type(info[1]) == "table"
+				and info[1]["secretkey"]
+				and info[1]["username"]
 				and tonumber(info[1]["is_del"]) == 0
 				and info[1]["accesskey"]
 			then
@@ -75,7 +75,7 @@ function _M.get_secretkey(accesskey)
 		end
 	else
 		--ngx.say("缓存了")
-		return cjson.decode(sk_info)[1]["secretkey"]	
+		return cjson.decode(sk_info)[1]["secretkey"]
 	end
 	return nil
 end
@@ -93,7 +93,7 @@ function _M.generate_authorization_string( self, method, bucketName, objectName,
 			end
 		end
 		if #amz_headers == 0 then
-			return "" 
+			return ""
 		else
 			table.sort(amz_headers)
 			local header_lines = {}
@@ -139,7 +139,7 @@ function _M.generate_authorization_string( self, method, bucketName, objectName,
 		--ngx.say(subResourceString)
 		return subResourceString
 	end
-    
+
     local canonicalizedResourceString = "/"
 	if bucketName then
 		canonicalizedResourceString = canonicalizedResourceString .. bucketName .. "/"
@@ -147,13 +147,13 @@ function _M.generate_authorization_string( self, method, bucketName, objectName,
 			canonicalizedResourceString = canonicalizedResourceString .. objectName
 		end
 	end
-    
+
 	local subResourceString = get_canonical_sub_resource_string(subResource)
 	if subResourceString and subResourceString ~= "" then
 		canonicalizedResourceString = canonicalizedResourceString .. "?" .. subResourceString
 	end
-    
-    local canonicalizedString = 
+
+    local canonicalizedString =
         method .. "\n"
         .. (headers["s-sina-sha1"] or headers["s-sina-md5"] or headers["Content-MD5"] or "") .. "\n"
         .. (headers["Content-Type"] or "") .. "\n"
@@ -162,7 +162,7 @@ function _M.generate_authorization_string( self, method, bucketName, objectName,
         .. canonicalizedResourceString
 	--ngx.say(canonicalizedString)
 	return ngx.encode_base64(ngx.hmac_sha1(self.secretkey, canonicalizedString))
-		:sub(6, 15)	
+		:sub(6, 15)
 end
 
 function _M.parse_accesskey_ssig()
@@ -194,23 +194,23 @@ function _M.auth_request()
 	if ngx.req.get_method() ~= "GET" then
 		return false, false, 'MethodNotAllowed'
 	end
-	
+
 	local path_info, path_info_ok = util.parse_request_info()
 	if not path_info_ok then
 		return false, false, 'InvalidURI'
 	end
-	
+
 	local c, err_msg = command.parse_cmd(path_info['cmd'])
 	if not  c then
 		return false, false, 'InvalidArgument', err_msg
 	end
 	path_info['style'] = c
-	
+
 	local accesskey, ssig = _M.parse_accesskey_ssig()
 	if not (accesskey and ssig) then
 		return false, false, 'InvalidArgument'
 	end
-	
+
 	local expires = ngx.var.arg_Expires
 	local ip = ngx.var.arg_ip
 	local remote_addr = ngx.req.get_headers()["Cdn-Src-Ip"] or ngx.req.get_headers()["X-Forwarded-For"] or ngx.var.remote_addr
@@ -268,7 +268,7 @@ function _M.scs_proxy(self, bucket, key)
 		util.release_http_connect(httpc)
 		return false, 'InternalServerError'
 	end
-	
+
 	if res.status ~= 200 and res.status ~= 304 then
 		util.release_http_connect(httpc)
 		return false, res.headers["x-error-code"]
@@ -277,21 +277,21 @@ function _M.scs_proxy(self, bucket, key)
 	--[[
 	if res.status == 404 then
 		if res.header["x-error-code"] == 'NoSuchKey' then
-		-- TODO	
+		-- TODO
 		else
 			util.release_http_connect(httpc)
 			return false, res.headers["x-error-code"]
 		end
 	end
 	]]
-	
+
 	local file_size = res.headers["Content-Length"] or res.headers["X-Filesize"]
 	if res.headers and file_size and res.headers["Content-Type"] then
 		if tonumber(file_size) > conf.get_conf("allowed_file_size_max") then
 			util.release_http_connect(httpc)
 			return false, 'EntityTooLarge'
 		end
-		
+
 		if tonumber(file_size) <= 2 then
 			util.release_http_connect(httpc)
 			return false, 'EntityTooSmall'
@@ -301,22 +301,22 @@ function _M.scs_proxy(self, bucket, key)
 			util.release_http_connect(httpc)
 			return false, 'InvalidFileType'
 		end
-	
+
 		local meta = {}
-		httpc:proxy_response(res, 1024*1024*10)	
-		util.release_http_connect(httpc)		
+		httpc:proxy_response(res, 1024*1024*10)
+		util.release_http_connect(httpc)
 
 		local header, value
 		for header, value in pairs(res.headers) do
 			if header:match('^x%-amz%-') or header:match('^x%-sina%-') then
-				meta[header] = value		
+				meta[header] = value
 			end
 		end
 		meta["Content-Type"] = res.headers["Content-Type"]
 		meta["Content-Length"] = file_size
 		meta["Last-Modified"] = res.headers["Last-Modified"]
 		meta["ETag"] = res.headers["ETag"]
-		
+
 		return meta, nil
 		--end
 		--local meta = cjson.decode(res.body)
@@ -345,7 +345,7 @@ local S3_DOMAIN_LIST = {
 	'intra-tj.sinastorage.com',
 	'intra-xd.sinastorage.com',
 	'intra-yf.sinastorage.com',
-} 
+}
 
 function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 	local request_uri = "/"
@@ -372,7 +372,7 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 	local ssig = self:generate_authorization_string(method, bucket, key, headers, sub_resource)
 	headers["Authorization"] = "SINA " .. self.accesskey .. ":" .. ssig
 	headers["Host"] = "sinastorage.com"
-	headers["User-Agent"] = "SinaImgx/0.1.0-rc"
+	headers["User-Agent"] = "imgx/0.9.0-dev"
 	--[[
 	intra-gz.sinastorage.com
 	intra-tj.sinastorage.com
@@ -380,10 +380,10 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 	]]
 	--[[
 	local args = {
-		ip = "intra-gz.sinastorage.com", 
-		port = 80, 
+		ip = "intra-gz.sinastorage.com",
+		port = 80,
 		url = request_uri,
-		headers = headers 
+		headers = headers
 	}
 	local resp, err_code, err = s2http.request(args)
 	if err_code ~= nil then
@@ -408,14 +408,14 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 	]]
 
 	local httpc = http.new()
-	httpc:set_timeout(60000)	
-	--httpc:set_timeout(1000*3600)	
+	httpc:set_timeout(60000)
+	--httpc:set_timeout(1000*3600)
 
 	local function try_request(ip)
 		local conn_ok, conn_err = httpc:connect(ip, 80)
 		if conn_ok then
 			local res, err = httpc:request{
-				method = method, 
+				method = method,
 				path = request_uri,
 				headers = headers,
 				body = body or "",
@@ -489,7 +489,7 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 	--httpc:close()
 	return res, err
 	]]
-	--[[	
+	--[[
 	local header_lines = {}
 	for header, value in pairs(headers) do
 		header_lines[#header_lines + 1] = header .. ": " .. value
