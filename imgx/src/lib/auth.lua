@@ -383,6 +383,7 @@ function _M.scs_request(self, bucket, key, method, headers, sub_resource, body)
 		headers["User-Agent"] = "imgx/0.9.0-dev"
 	else
 		headers["Host"] = bucket
+		request_uri = '/' .. key
 	end
 	--[[
 	intra-gz.sinastorage.com
