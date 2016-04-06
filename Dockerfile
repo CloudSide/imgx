@@ -1,7 +1,7 @@
 FROM daocloud.io/cloudmario/imgx-base
 MAINTAINER Cloud Mario <smcz@qq.com>
 
-ADD ./imgx /imgx
+COPY ./imgx /imgx
 
 RUN mkdir -p /imgx/cache
 
