@@ -12,6 +12,13 @@ RUN cd /imgx/c/magicktype && \
   ldconfig /usr/local/lib && \
   cd /usr/local/src
 
+# download fonts files
+RUN cd /imgx/src/lib/data && \
+  rm -rf fonts* && \
+  wget -O fonts.zip "http://cdn.sinacloud.net/hehe/imgx/fonts.zip" && \
+  unzip fonts.zip && \
+  rm -rf fonts.zip
+
 ENV TZ "Asia/Shanghai"
 ENV IMGX_VERSION 0.9.0
 
