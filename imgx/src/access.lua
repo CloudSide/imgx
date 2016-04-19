@@ -38,7 +38,7 @@ end
 --]]
 
 local function get_tmpfile_path(fpath)
-    return util.get_tmpfile_path(fpath)
+	return util.get_tmpfile_path(fpath)
 end
 
 local function get_file_path(bucket, key, mkdir)
@@ -103,15 +103,15 @@ local function download_file_atomic(bucket, key)
     end
 
 	repeat
-        local chunk, err = reader(1024 * 1024)
-        if err then
-            ngx.log(ngx.ERR, err)
+    local chunk, err = reader(1024 * 1024)
+    if err then
+      ngx.log(ngx.ERR, err)
 			util.release_http_connect(httpc)
 			fp:close()
-            os.remove(tmpath)
+      os.remove(tmpath)
 			return false, 'InternalServerError'
 		end
-        if chunk then
+    if chunk then
 			local ret, fw_err = fp:write(chunk)
 			if fw_err ~= nil then
 				fp:close()
@@ -121,8 +121,8 @@ local function download_file_atomic(bucket, key)
 				return false, 'InternalServerError'
 			end
 			--ngx.print(chunk)
-        end
-    until not chunk
+    end
+  until not chunk
 
 	fp:close()
 	util.release_http_connect(httpc)
@@ -216,11 +216,11 @@ local function try_file(bucket, key)
 
 		local ok, err = download_file_atomic(bucket, key)
 		local unlock_ok, unlock_err = lock:unlock()
-        if not unlock_ok then
+    if not unlock_ok then
 			ngx.log(ngx.ERR, unlock_err)
 			stoerr.err_exit('InternalError')
 			return false
-        end
+    end
 		if ok then
 			return true, fpath
 		else
