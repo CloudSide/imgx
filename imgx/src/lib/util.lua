@@ -43,51 +43,51 @@ function _M.file_exist(fpath)
 end
 
 function _M.split(str, pat)
-    local t = {}
+	local t = {}
 	if not (str and pat) then
 		return t
 	end
-    local fpat = "(.-)" .. pat
-    local last_end = 1
-    local s, e, cap = str:find(fpat, 1)
-    while s do
-        table.insert(t,cap)
-        last_end = e+1
-        s, e, cap = str:find(fpat, last_end)
-    end
-    cap = str:sub(last_end)
-    table.insert(t, cap)
-    return t
+	local fpat = "(.-)" .. pat
+	local last_end = 1
+	local s, e, cap = str:find(fpat, 1)
+	while s do
+		table.insert(t,cap)
+		last_end = e+1
+		s, e, cap = str:find(fpat, last_end)
+	end
+	cap = str:sub(last_end)
+	table.insert(t, cap)
+	return t
 end
 
 function _M.startswith( s, pref )
-    return string.sub( s, 1, string.len( pref ) ) == pref
+	return string.sub( s, 1, string.len( pref ) ) == pref
 end
 
 function _M.parse_query_string( str, decode )
-    local rst = {}
-    local i, s, pair, k, v
-    local arr = _M.split( str, '&' )
-    if decode == nil then
-        decode = true
-    end
-    if str == nil then
-        return rst
-    end
-    for i, s in ipairs( arr ) do
-        pair = _M.split( s, '=' )
-        k, v = pair[ 1 ], pair[ 2 ]
-        k = ngx.unescape_uri( k )
-        if v == nil then
-            rst[ k ] = true
-        else
-            if decode then
-                v = ngx.unescape_uri( v )
-            end
-            rst[ k ] = v
-        end
-    end
-    return rst
+	local rst = {}
+	local i, s, pair, k, v
+	local arr = _M.split( str, '&' )
+	if decode == nil then
+		decode = true
+	end
+	if str == nil then
+		return rst
+	end
+	for i, s in ipairs( arr ) do
+		pair = _M.split( s, '=' )
+		k, v = pair[ 1 ], pair[ 2 ]
+		k = ngx.unescape_uri( k )
+		if v == nil then
+			rst[ k ] = true
+		else
+			if decode then
+				v = ngx.unescape_uri( v )
+			end
+			rst[ k ] = v
+		end
+	end
+	return rst
 end
 
 function _M.raw_query()
@@ -95,20 +95,19 @@ function _M.raw_query()
 end
 
 function _M.calc_ssig( sec, stringtosign )
-    local s = ngx.encode_base64 (
-            ngx.hmac_sha1( sec, stringtosign ) )
-    return s:sub( 6, 15 )
+	local s = ngx.encode_base64 ( ngx.hmac_sha1( sec, stringtosign ) )
+	return s:sub( 6, 15 )
 end
 
 function _M.convert_bin_to_hex(bytes)
-    local b, i, str
-    local hex = ''
-    for i = 1, string.len(bytes) do
-        b = string.byte(bytes, i, i)
-        str = string.format("%02x", b)
-        hex = hex .. str
-    end
-    return hex
+	local b, i, str
+	local hex = ''
+	for i = 1, string.len(bytes) do
+		b = string.byte(bytes, i, i)
+		str = string.format("%02x", b)
+		hex = hex .. str
+	end
+	return hex
 end
 
 function _M.convert_hex_to_rgba_color(hex_color)
@@ -151,8 +150,7 @@ function _M.get_host_bucket(host)
 end
 
 function _M.escape_key_path( key )
-	return ngx.escape_uri(key)
-		:gsub("%%2F", "/")
+	return ngx.escape_uri(key):gsub("%%2F", "/")
 end
 
 function _M.parse_request_info(raw_uri, host)
@@ -181,29 +179,29 @@ function _M.parse_request_info(raw_uri, host)
 end
 
 function _M.get_http_response_body(response, chunksize, output)
-    local reader = response.body_reader
-    if not reader then
-        ngx.log(ngx.ERR, "no response provided")
-        return nil, "no body to be read"
-    end
+	local reader = response.body_reader
+	if not reader then
+		ngx.log(ngx.ERR, "no response provided")
+		return nil, "no body to be read"
+	end
 	local chunks = {}
-    local c = 1
-    local chunk, err
-    repeat
-        chunk, err = reader(chunksize)
-        if err then
-            ngx.log(ngx.ERR, err)
+	local c = 1
+	local chunk, err
+	repeat
+		chunk, err = reader(chunksize)
+		if err then
+  		ngx.log(ngx.ERR, err)
 			return nil, err, table.concat(chunks)
 		end
-        if chunk then
+  	if chunk then
 			if output then
 				ngx.print(chunk)
 			else
 				chunks[c] = chunk
 			end
 			c = c + 1
-        end
-    until not chunk
+  	end
+	until not chunk
 	if output then
 		return c
 	else
@@ -223,11 +221,11 @@ end
 function _M.get_tmpfile_path(fpath)
 	local tmp_path
 	math.randomseed(ngx.now() * 1000)
-    repeat
-        tmp_path = fpath .. '_' .. tostring(os.time()) ..
-                            '_' .. tostring(math.random(10000)) .. '.tmp'
-    until not luafs.is_exist(tmp_path)
-    return tmp_path
+	repeat
+		tmp_path = fpath .. '_' .. tostring(os.time()) ..
+												'_' .. tostring(math.random(10000)) .. '.tmp'
+	until not luafs.is_exist(tmp_path)
+	return tmp_path
 end
 
 function _M.get_filename(path)
@@ -385,21 +383,21 @@ function _M.resolver_query(domain)
 		nameservers = { "223.5.5.5", {"223.6.6.6", 53} },
 		retrans = 5,	-- 5 retransmissions on receive timeout
 		timeout = 2000,	-- 2 sec
-    }
+  }
 
 	local ip_list = {}
 
 	if not r then
 		--ngx.say("failed to instantiate the resolver: ", err)
 		table.insert(ip_list, domain)
-        return ip_list
+      return ip_list
     end
 
     local answers, err = r:query(domain)
     if not answers then
-		--ngx.say("failed to query the DNS server: ", err)
-		table.insert(ip_list, domain)
-		return ip_list
+			--ngx.say("failed to query the DNS server: ", err)
+			table.insert(ip_list, domain)
+			return ip_list
     end
 
 	if answers.errcode then

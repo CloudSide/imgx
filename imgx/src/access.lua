@@ -86,21 +86,21 @@ local function download_file_atomic(bucket, key)
 	end
 
 	local reader = res.body_reader
-    if not reader then
-        ngx.log(ngx.ERR, "no response provided")
-		util.release_http_connect(httpc)
-        return false, "InternalServerError"
-    end
+  if not reader then
+    ngx.log(ngx.ERR, "no response provided")
+	util.release_http_connect(httpc)
+    return false, "InternalServerError"
+  end
 
 	local fpath, sha1 = get_file_path(bucket, key, true)
 	local tmpath = get_tmpfile_path(fpath)
 
 	local fp, fp_err = io.open(tmpath, 'w+')
-    if fp_err ~= nil then
-		ngx.log(ngx.ERR, 'FileHandleError:' .. fp_err)
-		util.release_http_connect(httpc)
-        return false, 'InternalServerError'
-    end
+  if fp_err ~= nil then
+	ngx.log(ngx.ERR, 'FileHandleError:' .. fp_err)
+	util.release_http_connect(httpc)
+    return false, 'InternalServerError'
+  end
 
 	repeat
     local chunk, err = reader(1024 * 1024)
