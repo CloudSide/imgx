@@ -6,21 +6,21 @@ local _M = {
 
 local _error_to_http_code = {
 
-    UrlError = ngx.HTTP_NOT_FOUND,
-    GroupNotFound = ngx.HTTP_NOT_FOUND,
+  UrlError = ngx.HTTP_NOT_FOUND,
+  GroupNotFound = ngx.HTTP_NOT_FOUND,
 
-    MethodError = ngx.HTTP_NOT_ALLOWED,
+  MethodError = ngx.HTTP_NOT_ALLOWED,
 
-    Expired = ngx.HTTP_FORBIDDEN,
-    SignatureDoesNotMatch = ngx.HTTP_FORBIDDEN,
-    ChecksumNotMatch = ngx.HTTP_FORBIDDEN,
+	Expired = ngx.HTTP_FORBIDDEN,
+  SignatureDoesNotMatch = ngx.HTTP_FORBIDDEN,
+  ChecksumNotMatch = ngx.HTTP_FORBIDDEN,
 
-    LackOfSsig = ngx.HTTP_BAD_REQUEST,
-    InvalidRequest = ngx.HTTP_BAD_REQUEST,
+  LackOfSsig = ngx.HTTP_BAD_REQUEST,
+  InvalidRequest = ngx.HTTP_BAD_REQUEST,
 
-    SystemError = ngx.HTTP_INTERNAL_SERVER_ERROR,
-    FileError = ngx.HTTP_INTERNAL_SERVER_ERROR,
-    InvalidTmpFileName = ngx.HTTP_INTERNAL_SERVER_ERROR,
+  SystemError = ngx.HTTP_INTERNAL_SERVER_ERROR,
+  FileError = ngx.HTTP_INTERNAL_SERVER_ERROR,
+  InvalidTmpFileName = ngx.HTTP_INTERNAL_SERVER_ERROR,
 	InternalServerError = ngx.HTTP_INTERNAL_SERVER_ERROR,
 	GatewayTimeout = ngx.HTTP_GATEWAY_TIMEOUT,
 
@@ -81,7 +81,7 @@ local _error_to_message = {
 	RequestTimeout = "Your socket connection to the server was not read from or written to within the timeout period.",
 	RequestTimeTooSkewed = "The difference between the request time and the server's time is too large.",
 	SignatureDoesNotMatch = "The request signature we calculated does not match the signature you provided. Check your SCS Secret Access Key and signing method. For more information, see Authenticating REST Requests and Authenticating SOAP Requests for details.",
-	SlowDown = "Please reduce your request rate.",	
+	SlowDown = "Please reduce your request rate.",
 	InvalidFileType = "Not allowed file type, must be image files.",
 	UnknownTransformation = "Unknown Transformation",
 	InvalidTransformation = "Invalid Transformation",
@@ -103,9 +103,9 @@ function _M.err_exit(code, msg)
 	ngx.status = _error_to_http_code[code] or ngx.HTTP_BAD_REQUEST
 	ngx.header["Content-Type"] = "application/json"
 	ngx.header["x-error-code"] = code
-    ngx.say(out)
-    ngx.eof()
-    ngx.exit(ngx.HTTP_OK)
+  ngx.say(out)
+  ngx.eof()
+  ngx.exit(ngx.HTTP_OK)
 end
 
 

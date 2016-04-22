@@ -1,7 +1,7 @@
 local VERSION = "1.0.0"
 local ffi = require("ffi")
 local bit = require("bit")
-ffi.cdef([[  
+ffi.cdef([[
 
   typedef void MagickWand;
   typedef void PixelWand;
@@ -85,46 +85,46 @@ ffi.cdef([[
   } MagickEvaluateOperator;
 
   typedef enum {
-	UndefinedStretch,
-	NormalStretch,
-	UltraCondensedStretch,
-	ExtraCondensedStretch,
-	CondensedStretch,
-	SemiCondensedStretch,
-	SemiExpandedStretch,
-	ExpandedStretch,
-	ExtraExpandedStretch,
-	UltraExpandedStretch,
-	AnyStretch
+  	UndefinedStretch,
+  	NormalStretch,
+  	UltraCondensedStretch,
+  	ExtraCondensedStretch,
+  	CondensedStretch,
+  	SemiCondensedStretch,
+  	SemiExpandedStretch,
+  	ExpandedStretch,
+  	ExtraExpandedStretch,
+  	UltraExpandedStretch,
+  	AnyStretch
   } StretchType;
 
   typedef enum {
-	UndefinedStyle,
-	NormalStyle,
-	ItalicStyle,
-	ObliqueStyle,
-	AnyStyle
+  	UndefinedStyle,
+  	NormalStyle,
+  	ItalicStyle,
+  	ObliqueStyle,
+  	AnyStyle
   } StyleType;
 
   typedef enum {
-	UndefinedAlign,
-	LeftAlign,
-	CenterAlign,
-	RightAlign
+  	UndefinedAlign,
+  	LeftAlign,
+  	CenterAlign,
+  	RightAlign
   } AlignType;
 
   typedef enum {
-	UndefinedDecoration,
-	NoDecoration,
-	UnderlineDecoration,
-	OverlineDecoration,
-	LineThroughDecoration
+  	UndefinedDecoration,
+  	NoDecoration,
+  	UnderlineDecoration,
+  	OverlineDecoration,
+  	LineThroughDecoration
   } DecorationType;
 
   typedef enum {
-	UndefinedDirection,
-	RightToLeftDirection,
-	LeftToRightDirection
+  	UndefinedDirection,
+  	RightToLeftDirection,
+  	LeftToRightDirection
   } DirectionType;
 
   typedef enum {
@@ -152,7 +152,7 @@ ffi.cdef([[
   void DrawEllipse(DrawingWand *wand, const double ox, const double oy, const double rx, const double ry, const double start, const double end);
   void DrawSetStrokeWidth(DrawingWand *wand, const double stroke_width);
 
-  void PixelSetOpacity(PixelWand *wand, const double opacity);  
+  void PixelSetOpacity(PixelWand *wand, const double opacity);
   double PixelGetRed(const PixelWand *wand);
   double PixelGetGreen(const PixelWand *wand);
   double PixelGetBlue(const PixelWand *wand);
@@ -179,7 +179,7 @@ ffi.cdef([[
   MagickWand* DestroyMagickWand(MagickWand*);
   MagickBooleanType MagickReadImage(MagickWand*, const char*);
   MagickBooleanType MagickReadImageBlob(MagickWand*, const void*, const size_t);
-  MagickBooleanType MagickConstituteImage(MagickWand *wand, 
+  MagickBooleanType MagickConstituteImage(MagickWand *wand,
 	const size_t columns, const size_t rows, const char *map,
     const StorageType storage, void *pixels);
   MagickBooleanType MagickExportImagePixels(MagickWand *wand,
@@ -259,7 +259,7 @@ ffi.cdef([[
 	const PixelWand *bordercolor,
 	const size_t width,
     const size_t height);
-  
+
   MagickBooleanType MagickFrameImage(MagickWand *wand,
     const PixelWand *matte_color,const size_t width,
     const size_t height,const ssize_t inner_bevel,
@@ -722,7 +722,7 @@ do
 		return handle_result(self, lib.MagickNegateImage(self.wand, gray))
 	end,
 	oil_paint = function(self, radius)
-		return handle_result(self, lib.MagickOilPaintImage(self.wand, radius))	
+		return handle_result(self, lib.MagickOilPaintImage(self.wand, radius))
 	end,
 	tone = function(self, channel_name, value)
 		if channel_name == 'red' then
@@ -761,7 +761,7 @@ do
 		return handle_result(self, lib.MagickBrightnessContrastImage(self.wand, brightness, contrast))
 	end,
 	enhance = function(self)
-		return handle_result(self, lib.MagickEnhanceImage(self.wand)) 
+		return handle_result(self, lib.MagickEnhanceImage(self.wand))
 	end,
 	charcoal = function(self, radius, sigma)
 		return handle_result(self, lib.MagickCharcoalImage(self.wand, radius, sigma))
@@ -789,11 +789,11 @@ do
 		local w, h = self:get_width(), self:get_height()
 
 		local draw = lib.NewDrawingWand()
-		local pixelNone = lib.NewPixelWand() 
+		local pixelNone = lib.NewPixelWand()
 		lib.PixelSetColor(pixelNone, "none")
 		local pixelBorder = lib.NewPixelWand()
-		lib.PixelSetColor(pixelBorder, color)		
-		
+		lib.PixelSetColor(pixelBorder, color)
+
 		local mask = lib.NewMagickWand()
 		lib.MagickNewImage(mask, w, h, pixelNone)
 
@@ -837,7 +837,7 @@ do
 		h = h or height
 
 		local pixelBg = lib.NewPixelWand()
-		lib.PixelSetColor(pixelBg, background)		
+		lib.PixelSetColor(pixelBg, background)
 
 		local x_offset = padding
 		if tile then
@@ -860,7 +860,7 @@ do
 		else
 			lib.MagickCompositeImage(mask, self.wand, composite_op["OverCompositeOp"], x_offset, padding)
 		end
-		
+
 		lib.DestroyMagickWand(self.wand)
 		self.wand = mask
 
@@ -885,8 +885,8 @@ do
 		local pixelText = lib.NewPixelWand()
 		local pixelBg = lib.NewPixelWand()
 
-		lib.PixelSetColor(pixelText, font_color)	
-		lib.PixelSetColor(pixelBg, background)		
+		lib.PixelSetColor(pixelText, font_color)
+		lib.PixelSetColor(pixelBg, background)
 		lib.DrawSetFontSize(draw, font_size)
 		lib.DrawSetFontWeight(draw, font_weight)
 
@@ -956,7 +956,7 @@ do
 		end
 
 		local x_offset = ((self:get_width() - (metrics[4] + padding * 2)) / 2) + padding
-	
+
 		lib.MagickAnnotateImage(self.wand, draw, x_offset, padding, 0, text)
 
 		--lib.MagickTrimImage(self.wand, 0)
@@ -1021,7 +1021,7 @@ do
 		local drawWand = lib.NewDrawingWand()
 		local pixelBlack = lib.NewPixelWand()
 		local pixelTrans = lib.NewPixelWand()
-		local pixelWhite = lib.NewPixelWand() 
+		local pixelWhite = lib.NewPixelWand()
 		lib.PixelSetColor(pixelBlack, "black")
 		lib.PixelSetColor(pixelTrans, "transparent")
 		lib.PixelSetColor(pixelWhite, "white")
@@ -1030,7 +1030,7 @@ do
 		lib.DrawSetStrokeColor(drawWand, pixelTrans)
 		--lib.DrawSetStrokeWidth(drawWand, 0)
 		lib.DrawSetStrokeAntialias(drawWand, true)
-		
+
 		if radius < 0 then
 			lib.DrawEllipse(drawWand, w / 2 - 1, h / 2 - 1, w / 2 - 1, h / 2 - 1, 0, 360)
 		else
@@ -1049,7 +1049,7 @@ do
 		--lib.MagickCompositeImage(self.wand, mask, composite_op["CopyBlackCompositeOp"], 0, 0)
 
 		--self.wand = mask
-		
+
 		lib.DestroyPixelWand(pixelBlack)
 		lib.DestroyPixelWand(pixelTrans)
 		lib.DestroyPixelWand(pixelWhite)
@@ -1182,7 +1182,7 @@ new_image = function(w, h, color)
 	w = w or 0
 	h = h or 0
 	color = color or 'none'
-	local pixelNone = lib.NewPixelWand() 
+	local pixelNone = lib.NewPixelWand()
 	lib.PixelSetColor(pixelNone, color)
 	local wand = lib.NewMagickWand()
 	lib.MagickNewImage(wand, w, h, pixelNone)
