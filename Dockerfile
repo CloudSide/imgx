@@ -1,4 +1,4 @@
-FROM daocloud.io/cloudmario/imgx-base
+FROM cloudmario/imgx-base:v1.0.0
 MAINTAINER Cloud Mario <smcz@qq.com>
 
 COPY ./imgx /imgx
